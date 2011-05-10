@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>PTT</title>
+		<script>
+			function formatTime(tps) {
+				var h = tps.getHours();
+				var m = tps.getMinutes();
+				var s = tps.getSeconds();
+				return ((h>9)?"":"0")+h+":"+((m>9)?"":"0")+m+":"+((s>9)?"":"0")+s;
+			}
+			function showTime(){
+				document.querySelector("#time").innerHTML = formatTime(new Date());
+				setTimeout(showTime,1000);
+			}
+			document.addEventListener("DOMContentLoaded", showTime, false);
+		</script>
+		<style>
+			#time { font-family: Helvetica; font-size: 70px; margin: auto; width: 270px;}
+		</style>
+	</head>
+	<body>
+		<div id="time">0:00:00</div>
+	</body>
+</html>
