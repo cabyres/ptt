@@ -3,23 +3,91 @@
 	<head>
 		<title>PTT</title>
 		<script>
+			/**
+			* Global array containing all jobs
+			*/
+			var jobs = [];
+		
+			/**
+			* Format Date object to display the time properly
+			*/
 			function formatTime(tps) {
 				var h = tps.getHours();
 				var m = tps.getMinutes();
 				var s = tps.getSeconds();
 				return ((h>9)?"":"0")+h+":"+((m>9)?"":"0")+m+":"+((s>9)?"":"0")+s;
 			}
+			
+			/**
+			* Format a number of miliseconds to display the time properly
+			*/
+			function formatMilisec(ms){
+				var s = Math.floor(ms/1000);
+				var m = Math.floor(s/60);
+				var rs = s - m*60;
+				var h = Math.floor(m/60);
+				var rm = m - h*60;
+				return (h>0?(h>9?"":"0")+h+":":"") + ((rm>9?"":"0")+rm+":" ) +((rs>9?"":"0")+rs);
+			}
+			
+			/**
+			* Auto updated current Time display
+			*/
 			function showTime(){
 				document.querySelector("#time").innerHTML = formatTime(new Date());
 				setTimeout(showTime,1000);
 			}
+			
+			/**
+			* init
+			*/
 			document.addEventListener("DOMContentLoaded", showTime, false);
+			document.addEventListener("DOMContentLoaded", function(){
+				document.querySelector("#control input[type=button]").addEventListener("click", function(e){
+					var job = {
+						startTime : new Date()
+					};
+				
+					var jobDiv = document.createElement("div");
+					jobDiv.setAttribute("class","job");
+					
+					var s1 = document.createElement('span');
+					s1.setAttribute("class","startTime");
+					s1.innerHTML = formatTime(job.startTime);
+					jobDiv.appendChild(s1);
+					
+					var s2 = document.createElement('span');
+					s2.setAttribute("id","timer");
+					s2.setAttribute("class","timer");
+					jobDiv.appendChild(s2);
+					
+					var s3 = document.createElement('span');
+					s3.setAttribute("id","timerVal");
+					jobDiv.appendChild(s3);
+					
+					job.run = function(){
+						var time = new Date() - job.startTime;
+						jobDiv.querySelector("#timer").setAttribute("style","width:"+Math.ceil(time/10000)+"px");
+						jobDiv.querySelector("#timerVal").innerHTML= formatMilisec(time);
+						setTimeout(job.run,1000);
+					};
+					job.run();
+					
+					document.querySelector("#jobs").appendChild(jobDiv);
+					
+				}, false);
+			}, false);
 		</script>
 		<style>
 			#time { font-family: Helvetica; font-size: 70px; margin: auto; width: 270px;}
+			.timer{background-color: blue; display: inline-block; height: 12pt; margin:0 5px}
+			.startTime{font-weight:bold}
 		</style>
 	</head>
 	<body>
 		<div id="time">0:00:00</div>
+		<div id="jobs">
+			<form id="control"><input type="button" value="start"></form>
+		</div>
 	</body>
 </html>
