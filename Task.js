@@ -1,17 +1,40 @@
+
+function AutoInput(name, obj){
+	var input = document.createElement("input");
+	input.setAttribute("class",name);
+	input.type="text";
+
+	// boolean to know if the user is editing me
+	input.isEdited = false;
+	input.onblur = function(e){obj[name]=this.value; this.isEdited = false;};
+	input.onfocus = function(e){this.isEdited = true;};
+	
+	// automatic validation upon enter key press
+	input.onkeypress = function(e){if(e.charCode == 13) this.blur();};
+	
+	return input;
+};
+
 /**
 * Task object definition
 */
-
-/**
-* Task contructor
-*/
 function Task(){
-	
+	var that = this;
 	/**
-	* Private parameter
-	* Task starting time
+	* Privates parameters
+	* @startTime Task starting time 
+	* @stopTime Task stoping time 
 	*/
 	var startTime = new Date();
+	var stopTime;
+	
+	/**
+	* Public parameters
+	* @project Project name associated with the task
+	* @desc Description of the task work
+	*/
+	this.project = "projet";
+	this.desc = "description";
 	
 	/**
 	* Public method
@@ -45,18 +68,22 @@ function Task(){
 	var html = document.createElement("div");
 	html.setAttribute("class","job");
 	
+	html.i1 = AutoInput("project",this);
+	html.appendChild(html.i1);
+	
+	html.i2 = AutoInput("desc",this);
+	html.appendChild(html.i2);
+	
 	html.s1 = document.createElement('span');
 	html.s1.setAttribute("class","startTime");
-	html.s1.innerHTML = this.getStartTime();
 	html.appendChild(html.s1);
 	
 	html.s2 = document.createElement('span');
-	html.s2.setAttribute("id","timer");
 	html.s2.setAttribute("class","timer");
 	html.appendChild(html.s2);
 	
 	html.s3 = document.createElement('span');
-	html.s3.setAttribute("id","timerVal");
+	html.s3.setAttribute("class","timerVal");
 	html.appendChild(html.s3);
 	
 	/**
@@ -73,8 +100,17 @@ function Task(){
 	*/
 	var renderHTML = function(){
 		var time = new Date() - startTime;
+		html.s1.innerHTML = this.getStartTime();
 		html.s2.setAttribute("style","width:"+Math.ceil(time/10000)+"px");
 		html.s3.innerHTML = this.getElapsedTime();
+		if(this.project != null && !html.i1.isEdited){
+			html.i1.value = this.project;
+			html.i1.setAttribute("style", "width:"+html.i1.value.length+"ex");
+		}
+		if(this.desc != null && !html.i2.isEdited){
+			html.i2.value = this.desc;
+			html.i2.setAttribute("style", "width:"+html.i2.value.length+"ex");
+		}
 		var that = this;
 		this.timeout = setTimeout(function(){renderHTML.call(that);}, 1000);
 	}
