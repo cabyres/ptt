@@ -95,6 +95,12 @@ function Task(){
 	};
 	
 	/**
+	* Private parameter
+	* Timer that update the task
+	*/
+	var timeout;
+	
+	/**
 	* Private method
 	* Updates the DOM element according to the current Task status
 	*/
@@ -112,7 +118,16 @@ function Task(){
 			html.i2.setAttribute("style", "width:"+html.i2.value.length+"ex");
 		}
 		var that = this;
-		this.timeout = setTimeout(function(){renderHTML.call(that);}, 1000);
+		timeout = setTimeout(function(){renderHTML.call(that);}, 1000);
 	}
 	renderHTML.call(this);
+	
+	/**
+	* Public method
+	* Pauses the task execution
+	*/
+	this.pause = function(){
+		stopTime = new Date();
+		clearTimeout(timeout);
+	}
 }

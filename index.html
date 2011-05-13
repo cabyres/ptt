@@ -32,10 +32,12 @@
 			*/
 			document.addEventListener("DOMContentLoaded", showTime, false);
 			document.addEventListener("DOMContentLoaded", function(){
-				document.querySelector("#control input[type=button]").addEventListener("click", function(e){
+				document.querySelector("#control #start").addEventListener("click", function(e){
+					//pause currently running task
+					if (jobs.length > 0) jobs[jobs.length-1].pause();
+					// start a new task
 					jobs.push(new Task());
 					document.querySelector("#jobs").appendChild(jobs[jobs.length-1].getHTML());
-					
 				}, false);
 			}, false);
 		</script>
@@ -49,7 +51,7 @@
 	<body>
 		<div id="time">0:00:00</div>
 		<div id="jobs">
-			<form id="control"><input type="button" value="start"></form>
+			<form id="control"><input id="start" type="button" value="start"></form>
 		</div>
 	</body>
 </html>
