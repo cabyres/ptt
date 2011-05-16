@@ -10,7 +10,7 @@ function AutoInput(name, obj){
 	input.onfocus = function(e){this.isEdited = true;};
 	
 	// automatic validation upon enter key press
-	input.onkeypress = function(e){if(e.charCode == 13) this.blur();};
+	input.onkeypress = function(e){if(e.keyCode == 13) this.blur();};
 	
 	return input;
 };
