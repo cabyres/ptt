@@ -18,15 +18,28 @@ function AutoInput(name, obj){
 /**
 * Task object definition
 */
-function Task(){
+function Task(start, project, desc, stop){
 	var that = this;
+	
 	/**
 	* Privates parameters
 	* @startTime Task starting time 
 	* @stopTime Task stoping time 
 	*/
-	var startTime = new Date();
+	var startTime;
+	var isNewTask;
+	if (start == undefined){
+		startTime = new Date();
+		isNewTask = true;
+	} else {
+		startTime = new Date(start);
+		isNewTask = false;
+	}
+	
 	var stopTime;
+	if (stop != undefined && stop != ""){
+		stopTime = new Date(stop);
+	}
 	
 	/**
 	* Public parameters
@@ -47,12 +60,19 @@ function Task(){
 		return ((h>9)?"":"0")+h+":"+((m>9)?"":"0")+m+":"+((s>9)?"":"0")+s;
 	};
 	
+	this.getStartDate = function(){return startTime};
+	this.getStopDate = function(){return (stopTime == undefined ? "" : stopTime)};
+	
 	/**
 	* Public method
 	* @return the Task elapsed time in 0:00 format
 	*/
 	this.getElapsedTime = function(){
-		var ms = new Date() - startTime;
+		var endTime;
+		if (stopTime == undefined) endTime = new Date();
+		else endTime = stopTime;
+		
+		var ms = endTime - startTime;
 		var s = Math.floor(ms/1000);
 		var m = Math.floor(s/60);
 		var rs = s - m*60;
@@ -105,7 +125,10 @@ function Task(){
 	* Updates the DOM element according to the current Task status
 	*/
 	var renderHTML = function(){
-		var time = new Date() - startTime;
+		var endTime;
+		if (stopTime == undefined) endTime = new Date();
+		else endTime = stopTime;
+		var time = endTime - startTime;
 		html.s1.innerHTML = this.getStartTime();
 		html.s2.setAttribute("style","width:"+Math.ceil(time/10000)+"px");
 		html.s3.innerHTML = this.getElapsedTime();
@@ -129,5 +152,17 @@ function Task(){
 	this.pause = function(){
 		stopTime = new Date();
 		clearTimeout(timeout);
+		db.transaction(function (t) {
+			t.executeSql('UPDATE task SET stop=? WHERE id=?', [that.getStopDate(), that.id], function (t, r) {
+			});
+		});
+	}
+	
+	if (isNewTask){
+		db.transaction(function (t) {
+			t.executeSql('INSERT INTO task (start,stop,project,desc) VALUES (?,?,?,?)', [that.getStartDate(), that.getStopDate(), that.project, that.desc], function (t, r) {
+				that.id = r.insertId;
+			});
+		});
 	}
 }

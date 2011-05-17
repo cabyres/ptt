@@ -40,6 +40,57 @@
 					document.querySelector("#jobs").appendChild(jobs[jobs.length-1].getHTML());
 				}, false);
 			}, false);
+			
+			if ('openDatabase' in window){
+				document.addEventListener("DOMContentLoaded", function(){
+					
+					// creates the database
+					try {
+						if (window.openDatabase) {
+							db = openDatabase("tasks", "1.0", "Offline tasks storage", 200000);
+							if (db) {
+								db.transaction(function(tx) {
+									tx.executeSql("CREATE TABLE IF NOT EXISTS task (id INTEGER PRIMARY KEY AUTOINCREMENT, start TEXT, stop TEXT, project TEXT, desc TEXT)", [], function (tx, result) { 
+										console.log("ok!!");
+									}, function (t, e) {
+										// couldn't read database
+										console.log(e.message);
+									});
+								});
+							} else {
+								console.log('error occurred trying to open DB');
+							}
+						} else {
+							console.log('Web Databases not supported');
+						}
+					} catch (e) {
+						console.log('error occurred during DB init, Web Database supported?');
+					}
+					
+					// read tasks from database
+					db.readTransaction(function (t) {
+						t.executeSql('SELECT * FROM task', [], function (t, r) {
+							for (var i=0; i<r.rows.length; i++){
+								//console.log(r.rows.item(i).project+" : "+r.rows.item(i).desc);
+								var task = r.rows.item(i);
+								jobs.push(new Task(task.start,task.project,task.desc,task.stop));
+								document.querySelector("#jobs").appendChild(jobs[jobs.length-1].getHTML());
+							}
+						}, function (t, e) {
+							// couldn't read database
+							console.log(e.message);
+						});
+					});
+					
+					document.querySelector("#reset").addEventListener("click", function(e){
+						db.transaction(function(tx) {
+							tx.executeSql("DELETE FROM task", [], function (tx, result) { 
+								console.log("all data erased !");
+							});
+						});
+					});
+				});
+			}
 		</script>
 		<style>
 			#time { font-family: Helvetica; font-size: 70px; margin: auto; width: 270px;}
@@ -50,6 +101,7 @@
 	</head>
 	<body>
 		<div id="time">0:00:00</div>
+		<input id="reset" type="button" value="reset">
 		<div id="jobs">
 			<form id="control"><input id="start" type="button" value="start"></form>
 		</div>
