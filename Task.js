@@ -6,7 +6,12 @@ function AutoInput(name, obj){
 
 	// boolean to know if the user is editing me
 	input.isEdited = false;
-	input.onblur = function(e){obj[name]=this.value; this.isEdited = false;};
+	input.onblur = function(e){
+		//var that=this;
+		obj[name]=this.value; 
+		this.isEdited = false;
+		Database.update(obj);
+	};
 	input.onfocus = function(e){this.isEdited = true;};
 	
 	// automatic validation upon enter key press
@@ -46,8 +51,16 @@ function Task(start, project, desc, stop){
 	* @project Project name associated with the task
 	* @desc Description of the task work
 	*/
-	this.project = "projet";
-	this.desc = "description";
+	if (project == undefined){
+		this.project = "projet";
+	} else {
+		this.project = project;
+	}
+	if (desc == undefined){
+		this.desc = "description";
+	} else {
+		this.desc = desc;
+	}
 	
 	/**
 	* Public method
@@ -141,7 +154,9 @@ function Task(start, project, desc, stop){
 			html.i2.setAttribute("style", "width:"+html.i2.value.length+"ex");
 		}
 		var that = this;
-		timeout = setTimeout(function(){renderHTML.call(that);}, 1000);
+		if (stopTime == undefined){
+			timeout = setTimeout(function(){renderHTML.call(that);}, 1000);
+		}
 	}
 	renderHTML.call(this);
 	
@@ -150,19 +165,14 @@ function Task(start, project, desc, stop){
 	* Pauses the task execution
 	*/
 	this.pause = function(){
+		if (stopTime != undefined) return;
 		stopTime = new Date();
+		renderHTML.call(this);
 		clearTimeout(timeout);
-		db.transaction(function (t) {
-			t.executeSql('UPDATE task SET stop=? WHERE id=?', [that.getStopDate(), that.id], function (t, r) {
-			});
-		});
+		Database.update(this);
 	}
 	
 	if (isNewTask){
-		db.transaction(function (t) {
-			t.executeSql('INSERT INTO task (start,stop,project,desc) VALUES (?,?,?,?)', [that.getStartDate(), that.getStopDate(), that.project, that.desc], function (t, r) {
-				that.id = r.insertId;
-			});
-		});
+		Database.store(that);
 	}
 }
