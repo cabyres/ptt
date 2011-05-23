@@ -95,6 +95,17 @@ function Task(start, project, desc, dur){
 	
 	/**
 	* Public method
+	* @return the Task elapsed time in % of 1 hour format
+	*/
+	this.getPercentTime = function(){
+	    var ms;
+		if (duration == undefined) ms = new Date() - startTime;
+		else ms = duration;
+		return Math.ceil(ms*100/(1000*60*60));
+	};
+	
+	/**
+	* Public method
 	* @return true if the Task is currently running
 	*/
 	this.isRunning = function(){
@@ -145,11 +156,9 @@ function Task(start, project, desc, dur){
 	* Updates the DOM element according to the current Task status
 	*/
 	var renderHTML = function(){
-		var time;
-		if (this.isRunning()) time = new Date() - startTime;
-		else time = duration;
+		
 		html.s1.innerHTML = this.getStartTime();
-		html.s2.setAttribute("style","width:"+Math.ceil(time/10000)+"px");
+		html.s2.setAttribute("style","width:"+this.getPercentTime()+"px");
 		html.s3.innerHTML = this.getElapsedTime();
 		if(this.project != null && !html.i1.isEdited){
 			html.i1.value = this.project;
