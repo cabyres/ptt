@@ -23,13 +23,13 @@ function AutoInput(name, obj){
 /**
 * Task object definition
 */
-function Task(start, project, desc, stop){
+function Task(start, project, desc, dur){
 	var that = this;
 	
 	/**
 	* Privates parameters
 	* @startTime Task starting time 
-	* @stopTime Task stoping time 
+	* @duration Task duration time in milliseconds
 	*/
 	var startTime;
 	var isNewTask;
@@ -41,9 +41,9 @@ function Task(start, project, desc, stop){
 		isNewTask = false;
 	}
 	
-	var stopTime;
-	if (stop != undefined && stop != ""){
-		stopTime = new Date(stop);
+	var duration;
+	if (dur != undefined && dur != 0){
+		duration = dur;
 	}
 	
 	/**
@@ -74,18 +74,17 @@ function Task(start, project, desc, stop){
 	};
 	
 	this.getStartDate = function(){return startTime};
-	this.getStopDate = function(){return (stopTime == undefined ? "" : stopTime)};
+	this.getDuration = function(){return (this.isRunning() ? 0 : duration)};
 	
 	/**
 	* Public method
 	* @return the Task elapsed time in 0:00 format
 	*/
 	this.getElapsedTime = function(){
-		var endTime;
-		if (stopTime == undefined) endTime = new Date();
-		else endTime = stopTime;
+		var ms;
+		if (duration == undefined) ms = new Date() - startTime;
+		else ms = duration;
 		
-		var ms = endTime - startTime;
 		var s = Math.floor(ms/1000);
 		var m = Math.floor(s/60);
 		var rs = s - m*60;
@@ -93,6 +92,14 @@ function Task(start, project, desc, stop){
 		var rm = m - h*60;
 		return (h>0?(h>9?"":"0")+h+":":"") + ((h>0?(rm>9?"":"0"):"")+rm+":" ) +((rs>9?"":"0")+rs);
 	};
+	
+	/**
+	* Public method
+	* @return true if the Task is currently running
+	*/
+	this.isRunning = function(){
+	    return (duration == undefined);
+	}
 	
 	/**
 	* Private parameter
@@ -138,10 +145,9 @@ function Task(start, project, desc, stop){
 	* Updates the DOM element according to the current Task status
 	*/
 	var renderHTML = function(){
-		var endTime;
-		if (stopTime == undefined) endTime = new Date();
-		else endTime = stopTime;
-		var time = endTime - startTime;
+		var time;
+		if (this.isRunning()) time = new Date() - startTime;
+		else time = duration;
 		html.s1.innerHTML = this.getStartTime();
 		html.s2.setAttribute("style","width:"+Math.ceil(time/10000)+"px");
 		html.s3.innerHTML = this.getElapsedTime();
@@ -154,7 +160,7 @@ function Task(start, project, desc, stop){
 			html.i2.setAttribute("style", "width:"+html.i2.value.length+"ex");
 		}
 		var that = this;
-		if (stopTime == undefined){
+		if (this.isRunning()){
 			timeout = setTimeout(function(){renderHTML.call(that);}, 1000);
 		}
 	}
@@ -165,8 +171,8 @@ function Task(start, project, desc, stop){
 	* Pauses the task execution
 	*/
 	this.pause = function(){
-		if (stopTime != undefined) return;
-		stopTime = new Date();
+		if (!this.isRunning()) return;
+		duration = new Date() - startTime;
 		renderHTML.call(this);
 		clearTimeout(timeout);
 		Database.update(this);

@@ -53,7 +53,7 @@
 					Database.init();
 					
 					Database.load(function(task){
-						jobs.push(new Task(task.start,task.project,task.desc,task.stop));
+						jobs.push(new Task(task.start,task.project,task.desc,task.duration));
 						jobs[jobs.length-1].id = task.id;
 						document.querySelector("#jobs").appendChild(jobs[jobs.length-1].getHTML());
 					});

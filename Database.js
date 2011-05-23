@@ -6,7 +6,7 @@ Database = {
 				db = openDatabase("tasks", "1.0", "Offline tasks storage", 200000);
 				if (db) {
 					db.transaction(function(tx) {
-						tx.executeSql("CREATE TABLE IF NOT EXISTS task (id INTEGER PRIMARY KEY AUTOINCREMENT, start TEXT, stop TEXT, project TEXT, desc TEXT)", [], function (tx, result) { 
+						tx.executeSql("CREATE TABLE IF NOT EXISTS task (id INTEGER PRIMARY KEY AUTOINCREMENT, start TEXT, duration INTEGER, project TEXT, desc TEXT)", [], function (tx, result) { 
 							console.log("ok!!");
 						}, function (t, e) {
 							// couldn't read database
@@ -38,14 +38,14 @@ Database = {
 	},
 	store : function(task){
 		db.transaction(function (tx) {
-			tx.executeSql('INSERT INTO task (start,stop,project,desc) VALUES (?,?,?,?)', [task.getStartDate(), task.getStopDate(), task.project, task.desc], function (tx, result) {
+			tx.executeSql('INSERT INTO task (start,duration,project,desc) VALUES (?,?,?,?)', [task.getStartDate(), task.getDuration(), task.project, task.desc], function (tx, result) {
 				task.id = result.insertId;
 			});
 		});
 	},
 	update : function(task){
 		db.transaction(function(tx) {
-			tx.executeSql("UPDATE task SET start=?, stop=?, project=?, desc=? WHERE id=?", [task.getStartDate(), task.getStopDate(), task.project, task.desc, task.id], function (tx, result) { 
+			tx.executeSql("UPDATE task SET start=?, duration=?, project=?, desc=? WHERE id=?", [task.getStartDate(), task.getDuration(), task.project, task.desc, task.id], function (tx, result) { 
 			});
 		});
 	},
