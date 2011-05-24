@@ -66,21 +66,25 @@ function Task(start, project, desc, dur){
 	* Public method
 	* @return the Task starting time in 00:00:00 format
 	*/
-	this.getStartTime = function(){
+	this.getStartTime = function(withSeconds){
 		var h = startTime.getHours();
 		var m = startTime.getMinutes();
 		var s = startTime.getSeconds();
-		return ((h>9)?"":"0")+h+":"+((m>9)?"":"0")+m+":"+((s>9)?"":"0")+s;
+		var time = ((h>9)?"":"0")+h+":"+((m>9)?"":"0")+m;
+		if ((withSeconds == undefined) || withSeconds) {
+		    time += ":"+((s>9)?"":"0")+s;
+		}
+		return time;
 	};
 	
-	this.getStartDate = function(){return startTime};
+	this.getStartDate = function(){return startTime.getTime()};
 	this.getDuration = function(){return (this.isRunning() ? 0 : duration)};
 	
 	/**
 	* Public method
 	* @return the Task elapsed time in 0:00 format
 	*/
-	this.getElapsedTime = function(){
+	this.getElapsedTime = function(withSeconds){
 		var ms;
 		if (duration == undefined) ms = new Date() - startTime;
 		else ms = duration;
@@ -90,7 +94,11 @@ function Task(start, project, desc, dur){
 		var rs = s - m*60;
 		var h = Math.floor(m/60);
 		var rm = m - h*60;
-		return (h>0?(h>9?"":"0")+h+":":"") + ((h>0?(rm>9?"":"0"):"")+rm+":" ) +((rs>9?"":"0")+rs);
+		var time = (h>0?(h>9?"":"0")+h+":":"") + ((h>0?(rm>9?"":"0"):"")+rm);
+		if ((withSeconds == undefined) || withSeconds) {
+		    time += ":"+(rs>9?"":"0")+rs;
+		}
+		return time;
 	};
 	
 	/**

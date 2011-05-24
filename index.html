@@ -51,13 +51,58 @@
 				document.addEventListener("DOMContentLoaded", function(){
 					
 					Database.init();
-					
-					Database.load(function(task){
-						jobs.push(new Task(task.start,task.project,task.desc,task.duration));
-						jobs[jobs.length-1].id = task.id;
-						document.querySelector("#jobs").appendChild(jobs[jobs.length-1].getHTML());
+					var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+					var offset=10;
+					Database.load("current", function(task){
+					    var theTask = new Task(task.start,task.project,task.desc,task.duration);
+					    theTask.id = task.id;
+						jobs.push(theTask);
+						document.querySelector("#jobs").appendChild(theTask.getHTML());
 					});
-					
+					Database.load("today", function(task){
+					    var theTask = new Task(task.start,task.project,task.desc,task.duration);
+					    
+						var height = theTask.getPercentTime();
+						svg.rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+						svg.rect.setAttribute("x", 0);
+						svg.rect.setAttribute("y", offset);
+						svg.rect.setAttribute("width",50);
+						svg.rect.setAttribute("height", height);
+						svg.appendChild(svg.rect);
+						
+						svg.line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+						svg.line.setAttribute("x1", 0);
+						svg.line.setAttribute("y1", offset);
+						svg.line.setAttribute("x2", 55);
+						svg.line.setAttribute("y2", offset);
+						svg.appendChild(svg.line);
+						
+						if(height > 10) {
+						    svg.start = document.createElementNS("http://www.w3.org/2000/svg", "text");
+						    svg.start.setAttribute("class","start");
+						    svg.start.setAttribute("x",55);
+						    svg.start.setAttribute("y",offset+5);
+						    svg.start.textContent = theTask.getStartTime(false);
+						    svg.appendChild(svg.start);
+						    
+						    svg.time = document.createElementNS("http://www.w3.org/2000/svg", "text");
+						    svg.time.setAttribute("class","time");
+						    svg.time.setAttribute("x",25);
+						    svg.time.setAttribute("y",offset+height/2+5);
+						    svg.time.textContent = theTask.getElapsedTime(false);
+						    svg.appendChild(svg.time);
+						
+						    svg.project = document.createElementNS("http://www.w3.org/2000/svg", "text");
+						    svg.project.setAttribute("class","project");
+						    svg.project.setAttribute("x",60);
+						    svg.project.setAttribute("y",offset+height/2+5);
+						    svg.project.textContent = theTask.project;
+						    svg.appendChild(svg.project);
+						}
+						offset += height;
+						
+					});
+					document.querySelector("#day").appendChild(svg);
 					document.querySelector("#reset").addEventListener("click", function(e){
 						Database.erase();
 					});
@@ -69,6 +114,10 @@
 			.timer{background-color: blue; display: inline-block; height: 12pt; margin:0 5px}
 			.startTime{font-weight:bold}
 			.job input{border:none; margin: 0 1ex; width:0ex;}
+			section {min-height:100px; border:thin solid grey}
+			rect{fill:lightBlue}
+			text.time{text-anchor:middle}
+			line{stroke:blue}
 		</style>
 	</head>
 	<body>
@@ -80,5 +129,6 @@
 				<input id="stop" type="button" value="stop">
 			</form>
 		</div>
+		<section id="day"></section>
 	</body>
 </html>
