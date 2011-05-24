@@ -20,6 +20,19 @@
 				return ((h>9)?"":"0")+h+":"+((m>9)?"":"0")+m+":"+((s>9)?"":"0")+s;
 			}
 			
+			function formatDuration(ms,withSeconds){
+			    var s = Math.floor(ms/1000);
+		        var m = Math.floor(s/60);
+		        var rs = s - m*60;
+		        var h = Math.floor(m/60);
+		        var rm = m - h*60;
+		        var time = (h>0?(h>9?"":"0")+h+":":"") + ((h>0?(rm>9?"":"0"):"")+rm);
+		        if ((withSeconds == undefined) || withSeconds) {
+		            time += ":"+(rs>9?"":"0")+rs;
+		        }
+		        return time;
+			}
+			
 			/**
 			* Auto updated current Time display
 			*/
@@ -89,6 +102,7 @@
 						    svg.time.setAttribute("class","time");
 						    svg.time.setAttribute("x",25);
 						    svg.time.setAttribute("y",offset+height/2+5);
+						    svg.time.setAttribute("style","text-anchor:middle");
 						    svg.time.textContent = theTask.getElapsedTime(false);
 						    svg.appendChild(svg.time);
 						
@@ -105,17 +119,32 @@
 					
 					var aOffset = Math.PI/2;
 					Database.load("project", function(project){
-					    console.log(project.project+' => '+project.dur);
-					    var angle = aOffset - 2*Math.PI*project.dur/(8*60*60*1000);
-					    console.log("angle="+angle+", offset="+aOffset);
+					    var angle = 2*Math.PI*project.dur/(8*60*60*1000);
 					    var x1 = Math.round(Math.cos(aOffset)*10000)/100;
 					    var y1 = Math.round(-Math.sin(aOffset)*10000)/100;
-					    var x2 = Math.round((Math.cos(angle)*100-x1)*100)/100;
-					    var y2 = Math.round((-Math.sin(angle)*100-y1)*100)/100;
+					    var x2 = Math.round((Math.cos(aOffset - angle)*100-x1)*100)/100;
+					    var y2 = Math.round((-Math.sin(aOffset - angle)*100-y1)*100)/100;
 					    svg.camemberg = document.createElementNS("http://www.w3.org/2000/svg", "path");
-					    svg.camemberg.setAttribute("d","M300,110 l"+x1+","+y1+" a100,100 10 0,1 "+x2+","+y2+" Z");
+					    svg.camemberg.setAttribute("d","M300,150 l"+x1+","+y1+" a100,100 10 0,1 "+x2+","+y2+" Z");
 					    svg.appendChild(svg.camemberg);
-					    aOffset = angle;
+					    
+					    svg.project = document.createElementNS("http://www.w3.org/2000/svg", "text");
+					    svg.project.setAttribute("class","project");
+					    svg.project.setAttribute("x",300+Math.round(Math.cos(aOffset - angle/2)*7000)/100);
+					    svg.project.setAttribute("y",150-Math.round(Math.sin(aOffset - angle/2)*7000)/100);
+					    svg.project.setAttribute("style","text-anchor:middle");
+					    svg.project.textContent = project.project;
+					    svg.appendChild(svg.project);
+					    
+					    svg.time = document.createElementNS("http://www.w3.org/2000/svg", "text");
+					    svg.time.setAttribute("class","time");
+					    svg.time.setAttribute("x",300+Math.round(Math.cos(aOffset - angle/2)*12000)/100);
+					    svg.time.setAttribute("y",150-Math.round(Math.sin(aOffset - angle/2)*12000)/100);
+					    svg.time.setAttribute("style","text-anchor:middle");
+					    svg.time.textContent = formatDuration(project.dur,false);
+					    svg.appendChild(svg.time);
+					    
+					    aOffset -= angle;
 					});
 					document.querySelector("#day").appendChild(svg);
 					document.querySelector("#reset").addEventListener("click", function(e){
@@ -131,7 +160,7 @@
 			.job input{border:none; margin: 0 1ex; width:0ex;}
 			section {min-height:100px; border:thin solid grey}
 			rect{fill:lightBlue}
-			text.time{text-anchor:middle}
+			text.time{}
 			line{stroke:blue}
 			path{fill:lightBlue;stroke:blue}
 		</style>
