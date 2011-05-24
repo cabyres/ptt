@@ -102,6 +102,21 @@
 						offset += height;
 						
 					});
+					
+					var aOffset = Math.PI/2;
+					Database.load("project", function(project){
+					    console.log(project.project+' => '+project.dur);
+					    var angle = aOffset - 2*Math.PI*project.dur/(8*60*60*1000);
+					    console.log("angle="+angle+", offset="+aOffset);
+					    var x1 = Math.round(Math.cos(aOffset)*10000)/100;
+					    var y1 = Math.round(-Math.sin(aOffset)*10000)/100;
+					    var x2 = Math.round((Math.cos(angle)*100-x1)*100)/100;
+					    var y2 = Math.round((-Math.sin(angle)*100-y1)*100)/100;
+					    svg.camemberg = document.createElementNS("http://www.w3.org/2000/svg", "path");
+					    svg.camemberg.setAttribute("d","M300,110 l"+x1+","+y1+" a100,100 10 0,1 "+x2+","+y2+" Z");
+					    svg.appendChild(svg.camemberg);
+					    aOffset = angle;
+					});
 					document.querySelector("#day").appendChild(svg);
 					document.querySelector("#reset").addEventListener("click", function(e){
 						Database.erase();
@@ -118,6 +133,7 @@
 			rect{fill:lightBlue}
 			text.time{text-anchor:middle}
 			line{stroke:blue}
+			path{fill:lightBlue;stroke:blue}
 		</style>
 	</head>
 	<body>

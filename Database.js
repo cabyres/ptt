@@ -46,6 +46,15 @@ Database = {
 				    // couldn't read database
 				    console.log(e.message);
 			    });
+			} else if (query == "project") {
+			    t.executeSql('SELECT project, sum(duration) as dur FROM task GROUP BY project', [], function (t, r) {
+				    for (var i=0; i<r.rows.length; i++){
+					    callback(r.rows.item(i));
+				    }
+			    }, function (t, e) {
+				    // couldn't read database
+				    console.log(e.message);
+			    });
 			}
 		});
 	},
