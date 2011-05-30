@@ -46,8 +46,10 @@ Database = {
 				    // couldn't read database
 				    console.log(e.message);
 			    });
-			} else if (query == "project") {
-			    t.executeSql('SELECT project, sum(duration) as dur FROM task GROUP BY project', [], function (t, r) {
+			} else if (query == "today-project") {
+			    var now = new Date();
+			    var today = new Date(now.getFullYear(),now.getMonth(),now.getDate());
+			    t.executeSql('SELECT project, sum(duration) as dur FROM task where start>='+today.getTime()+' AND start<'+(today.getTime()+1000*24*60*60)+' GROUP BY project', [], function (t, r) {
 				    for (var i=0; i<r.rows.length; i++){
 					    callback(r.rows.item(i));
 				    }
