@@ -38,7 +38,7 @@ Database = {
 			} else if (query == "today") {
 			    var now = new Date();
 			    var today = new Date(now.getFullYear(),now.getMonth(),now.getDate());
-			    t.executeSql('SELECT * FROM task where start>='+today.getTime()+' AND start<'+(today.getTime()+1000*24*60*60), [], function (t, r) {
+			    t.executeSql('SELECT * FROM task where start>='+today.getTime()+' AND start<'+(today.getTime()+1000*24*60*60) + ' ORDER BY start', [], function (t, r) {
 				    for (var i=0; i<r.rows.length; i++){
 					    callback(r.rows.item(i));
 				    }
